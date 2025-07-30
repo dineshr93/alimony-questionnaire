@@ -1,0 +1,73 @@
+[
+    {
+        "title": "1. Marriage and Family Details",
+        "questions": [
+            "Date of marriage:",
+            "Current marital status (e.g., separated, divorced):",
+            "Duration of the marriage (in years):",
+            "Number of children from this marriage:",
+            "Current custody arrangement (if applicable):"
+        ]
+    },
+    {
+        "title": "2. Personal Background",
+        "questions": [
+            "Full name:",
+            "Date of birth and age:",
+            "Educational qualifications:",
+            "Any professional certifications or licenses:",
+            "Do you have any physical or mental health conditions affecting your ability to work?"
+        ]
+    },
+    {
+        "title": "3. Employment and Income",
+        "questions": [
+            "Current employment status (employed/unemployed/self-employed):",
+            "Occupation and job title (if employed):",
+            "Name of employer/business (optional):",
+            "Monthly income from employment or business:",
+            "Other income sources (e.g., rent, dividends, family support):",
+            "Have you filed income tax returns for the last 3 years?"
+        ]
+    },
+    {
+        "title": "4. Financial Assets and Liabilities",
+        "questions": [
+            "List of immovable property owned (location, type, current value):",
+            "List of movable assets (vehicles, electronics, jewelry, etc.):",
+            "Details of bank accounts and balances (optional):",
+            "Investments held (FDs, stocks, mutual funds, etc.):",
+            "Outstanding loans or liabilities (type, lender, amount due):",
+            "Any previous lump sum settlements or asset transfers between parties:"
+        ]
+    },
+    {
+        "title": "5. Monthly Expenses",
+        "questions": [
+            "Monthly housing cost (rent/mortgage):",
+            "Monthly utility and grocery expenses:",
+            "Medical and insurance expenses:",
+            "Educational expenses (self/children):",
+            "Transport and communication expenses:",
+            "Any other recurring monthly costs:"
+        ]
+    },
+    {
+        "title": "6. Marital Conduct and Litigation History",
+        "questions": [
+            "Were there any allegations of cruelty, abuse, or misconduct?",
+            "Any prior or ongoing litigation (maintenance, DV, child custody, etc.):",
+            "Has either spouse contributed to litigation delay?",
+            "Have there been any overlapping maintenance claims in other courts?"
+        ]
+    },
+    {
+        "title": "7. Standard of Living and Needs",
+        "questions": [
+            "Describe the standard of living enjoyed during the marriage:",
+            "What is your current standard of living compared to during the marriage?",
+            "Do you have any special or reasonable monthly needs (medical, dietary, etc.)?",
+            "Do you require financial support to maintain a comparable lifestyle?"
+        ]
+    }
+]

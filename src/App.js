@@ -1,156 +1,238 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import {
+  Document,
+  Packer,
+  Paragraph,
+  Table,
+  TableRow,
+  TableCell,
+  TextRun
+} from "docx";
+import { saveAs as saveWord } from "file-saver";
+import questions from "./questions.json";
+import logo from "./logo.svg";
 import "./App.css";
-
-const sections = [
-  {
-    title: "1. Marriage and Family Details",
-    questions: [
-      "Date of marriage:",
-      "Current marital status (e.g., separated, divorced):",
-      "Duration of the marriage (in years):",
-      "Number of children from this marriage:",
-      "Current custody arrangement (if applicable):"
-    ]
-  },
-  {
-    title: "2. Personal Background",
-    questions: [
-      "Full name:",
-      "Date of birth and age:",
-      "Educational qualifications:",
-      "Any professional certifications or licenses:",
-      "Do you have any physical or mental health conditions affecting your ability to work?"
-    ]
-  },
-  {
-    title: "3. Employment and Income",
-    questions: [
-      "Current employment status (employed/unemployed/self-employed):",
-      "Occupation and job title (if employed):",
-      "Name of employer/business (optional):",
-      "Monthly income from employment or business:",
-      "Other income sources (e.g., rent, dividends, family support):",
-      "Have you filed income tax returns for the last 3 years?"
-    ]
-  },
-  {
-    title: "4. Financial Assets and Liabilities",
-    questions: [
-      "List of immovable property owned (location, type, current value):",
-      "List of movable assets (vehicles, electronics, jewelry, etc.):",
-      "Details of bank accounts and balances (optional):",
-      "Investments held (FDs, stocks, mutual funds, etc.):",
-      "Outstanding loans or liabilities (type, lender, amount due):",
-      "Any previous lump sum settlements or asset transfers between parties:"
-    ]
-  },
-  {
-    title: "5. Monthly Expenses",
-    questions: [
-      "Monthly housing cost (rent/mortgage):",
-      "Monthly utility and grocery expenses:",
-      "Medical and insurance expenses:",
-      "Educational expenses (self/children):",
-      "Transport and communication expenses:",
-      "Any other recurring monthly costs:"
-    ]
-  },
-  {
-    title: "6. Marital Conduct and Litigation History",
-    questions: [
-      "Were there any allegations of cruelty, abuse, or misconduct?",
-      "Any prior or ongoing litigation (maintenance, DV, child custody, etc.):",
-      "Has either spouse contributed to litigation delay?",
-      "Have there been any overlapping maintenance claims in other courts?"
-    ]
-  },
-  {
-    title: "7. Standard of Living and Needs",
-    questions: [
-      "Describe the standard of living enjoyed during the marriage:",
-      "What is your current standard of living compared to during the marriage?",
-      "Do you have any special or reasonable monthly needs (medical, dietary, etc.)?",
-      "Do you require financial support to maintain a comparable lifestyle?"
-    ]
-  }
-];
-
 
 export default function AlimonyFormApp() {
   const [responses, setResponses] = useState({ spouse1: {}, spouse2: {} });
+  const [sections, setSections] = useState([]);
+
+  useEffect(() => {
+    setSections(questions);
+    const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/svg+xml';
+    link.rel = 'icon';
+    link.href = logo;
+    document.getElementsByTagName('head')[0].appendChild(link);
+  }, []);
 
   const handleChange = (spouseKey, key, value) => {
-    setResponses({
-      ...responses,
+    setResponses((prev) => ({
+      ...prev,
       [spouseKey]: {
-        ...responses[spouseKey],
+        ...prev[spouseKey],
         [key]: value
       }
-    });
+    }));
   };
 
-  const handleGenerateText = () => {
-    let result = "";
-    ["spouse1", "spouse2"].forEach((spouseKey, index) => {
-      const label = spouseKey === "spouse1" ? "Spouse 1" : "Spouse 2";
-      result += `\n=============================\n${label} Responses\n=============================\n`;
-      sections.forEach((section) => {
-        result += `\n${section.title}\n`;
-        section.questions.forEach((q) => {
-          result += `\n${q}\n${responses[spouseKey][q] || ""}\n`;
-        });
-        result += `\nAdditional Comments:\n${responses[spouseKey][section.title + "_comments"] || ""}\n`;
+  const getSuggestions = (key) => {
+    const values = new Set();
+    [responses.spouse1[key], responses.spouse2[key]].forEach((v) => {
+      if (v && v.trim() !== "") values.add(v.trim());
+    });
+    return Array.from(values);
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    const timestamp = new Date().toLocaleString();
+    doc.setFontSize(14);
+    doc.text("Alimony Questionnaire", 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${timestamp}`, 14, 27);
+    let finalRows = [];
+
+    sections.forEach((section) => {
+      finalRows.push([section.title, "", ""]);
+      section.questions.forEach((q) => {
+        finalRows.push([
+          q,
+          responses.spouse1[q] || "",
+          responses.spouse2[q] || ""
+        ]);
       });
+      finalRows.push([
+        "Additional Comments",
+        responses.spouse1[section.title + "_comments"] || "",
+        responses.spouse2[section.title + "_comments"] || ""
+      ]);
     });
 
-    const blob = new Blob([result], { type: "text/plain;charset=utf-8" });
+    autoTable(doc, {
+      head: [["Question", "Spouse 1", "Spouse 2"]],
+      body: finalRows,
+      startY: 35
+    });
+
+    doc.save("Alimony_Questionnaire.pdf");
+  };
+
+  const generateWord = async () => {
+    const timestamp = new Date().toLocaleString();
+
+    const rows = [
+      new TableRow({
+        children: [
+          new TableCell({ children: [new Paragraph("Question")] }),
+          new TableCell({ children: [new Paragraph("Spouse 1")] }),
+          new TableCell({ children: [new Paragraph("Spouse 2")] })
+        ]
+      })
+    ];
+
+    sections.forEach((section) => {
+      rows.push(
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph(section.title)] }),
+            new TableCell({ children: [new Paragraph("")] }),
+            new TableCell({ children: [new Paragraph("")] })
+          ]
+        })
+      );
+      section.questions.forEach((q) => {
+        rows.push(
+          new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph(q)] }),
+              new TableCell({ children: [new Paragraph(responses.spouse1[q] || "")] }),
+              new TableCell({ children: [new Paragraph(responses.spouse2[q] || "")] })
+            ]
+          })
+        );
+      });
+      rows.push(
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph("Additional Comments")] }),
+            new TableCell({ children: [new Paragraph(responses.spouse1[section.title + "_comments"] || "")] }),
+            new TableCell({ children: [new Paragraph(responses.spouse2[section.title + "_comments"] || "")] })
+          ]
+        })
+      );
+    });
+
+    const doc = new Document({
+      creator: "Alimony App",
+      title: "Alimony Questionnaire",
+      description: "Generated questionnaire responses",
+      sections: [
+        {
+          children: [
+            new Paragraph({ children: [new TextRun("Alimony Questionnaire")] }),
+            new Paragraph({ children: [new TextRun(`Generated on: ${timestamp}`)] }),
+            new Table({ rows })
+          ]
+        }
+      ]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveWord(blob, "Alimony_Questionnaire.docx");
+  };
+
+
+  const generateText = () => {
+    const timestamp = new Date().toLocaleString();
+    let textOutput = `Alimony Questionnaire\nGenerated on: ${timestamp}\n\n`;
+    sections.forEach((section) => {
+      textOutput += section.title + "\n";
+      section.questions.forEach((q) => {
+        textOutput += `${q}\nSpouse 1: ${responses.spouse1[q] || ""}\nSpouse 2: ${responses.spouse2[q] || ""}\n`;
+      });
+      textOutput += `Additional Comments\nSpouse 1: ${responses.spouse1[section.title + "_comments"] || ""}\nSpouse 2: ${responses.spouse2[section.title + "_comments"] || ""}\n\n`;
+    });
+    const blob = new Blob([textOutput], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "Alimony_Questionnaire.txt");
   };
 
   return (
     <div className="container" style={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Alimony Questionnaire</h1>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px' }}>
-        {["spouse1", "spouse2"].map((spouseKey, idx) => (
-          <div key={spouseKey} style={{ flex: '1 1 500px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '10px' }}>
-              {spouseKey === "spouse1" ? "Spouse 1" : "Spouse 2"}
-            </h2>
-            {sections.map((section, i) => (
-              <div key={i} style={{ border: '1px solid #ccc', padding: '15px', marginTop: '20px', borderRadius: '8px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '10px' }}>{section.title}</h3>
-                {section.questions.map((q, j) => (
-                  <div key={j} style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '5px' }}>{q}</label>
-                    <textarea
-                      rows="3"
-                      style={{ width: '100%', padding: '8px', borderRadius: '5px', borderColor: '#ccc' }}
-                      value={responses[spouseKey][q] || ""}
-                      onChange={(e) => handleChange(spouseKey, q, e.target.value)}
-                    />
-                  </div>
-                ))}
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '5px' }}>Additional Comments</label>
-                  <textarea
-                    rows="3"
-                    style={{ width: '100%', padding: '8px', borderRadius: '5px', borderColor: '#ccc' }}
-                    value={responses[spouseKey][section.title + "_comments"] || ""}
-                    onChange={(e) => handleChange(spouseKey, section.title + "_comments", e.target.value)}
-                  />
-                </div>
+      {sections.map((section, i) => (
+        <div key={i} style={{ border: '1px solid #ccc', padding: '15px', marginTop: '20px', borderRadius: '8px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '10px' }}>{section.title}</h3>
+          {section.questions.map((q, j) => (
+            <div key={j} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+              <label style={{ width: '30%' }}>{q}</label>
+              <div style={{ flex: 1 }}>
+                <input
+                  list={`spouse1-${q}`}
+                  placeholder="Spouse 1"
+                  value={responses.spouse1[q] || ""}
+                  onChange={(e) => handleChange("spouse1", q, e.target.value)}
+                  style={{ width: '100%' }}
+                />
+                <datalist id={`spouse1-${q}`}>
+                  {getSuggestions(q).map((val, idx) => (
+                    <option key={idx} value={val} />
+                  ))}
+                </datalist>
               </div>
-            ))}
+              <div style={{ flex: 1 }}>
+                <input
+                  list={`spouse2-${q}`}
+                  placeholder="Spouse 2"
+                  value={responses.spouse2[q] || ""}
+                  onChange={(e) => handleChange("spouse2", q, e.target.value)}
+                  style={{ width: '100%' }}
+                />
+                <datalist id={`spouse2-${q}`}>
+                  {getSuggestions(q).map((val, idx) => (
+                    <option key={idx} value={val} />
+                  ))}
+                </datalist>
+              </div>
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <label style={{ width: '30%' }}>Additional Comments</label>
+            <input
+              list={`spouse1-${section.title}-comments`}
+              style={{ flex: 1 }}
+              placeholder="Spouse 1"
+              value={responses.spouse1[section.title + "_comments"] || ""}
+              onChange={(e) => handleChange("spouse1", section.title + "_comments", e.target.value)}
+            />
+            <datalist id={`spouse1-${section.title}-comments`}>
+              {getSuggestions(section.title + "_comments").map((val, idx) => (
+                <option key={idx} value={val} />
+              ))}
+            </datalist>
+            <input
+              list={`spouse2-${section.title}-comments`}
+              style={{ flex: 1 }}
+              placeholder="Spouse 2"
+              value={responses.spouse2[section.title + "_comments"] || ""}
+              onChange={(e) => handleChange("spouse2", section.title + "_comments", e.target.value)}
+            />
+            <datalist id={`spouse2-${section.title}-comments`}>
+              {getSuggestions(section.title + "_comments").map((val, idx) => (
+                <option key={idx} value={val} />
+              ))}
+            </datalist>
           </div>
-        ))}
+        </div>
+      ))}
+      <div style={{ marginTop: '30px', display: 'flex', gap: '20px' }}>
+        <button onClick={generatePDF} style={{ padding: '10px 20px', fontWeight: 'bold' }}>Generate PDF</button>
+        <button onClick={generateWord} style={{ padding: '10px 20px', fontWeight: 'bold' }}>Generate Word</button>
+        <button onClick={generateText} style={{ padding: '10px 20px', fontWeight: 'bold' }}>Generate Text</button>
       </div>
-      <button
-        onClick={handleGenerateText}
-        style={{ marginTop: '30px', padding: '10px 20px', fontWeight: 'bold', borderRadius: '5px', backgroundColor: '#007bff', color: 'white', border: 'none' }}
-      >
-        Generate Text File
-      </button>
     </div>
   );
 }
