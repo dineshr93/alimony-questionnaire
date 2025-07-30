@@ -43,9 +43,11 @@ export default function AlimonyFormApp() {
     const doc = new jsPDF();
     const timestamp = new Date().toLocaleString();
     doc.setFontSize(14);
-    doc.text("Alimony Questionnaire (Based on 2024 SC Guidelines)", 14, 20);
+    doc.text("Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)", 14, 20);
+    doc.setFontSize(8);
+    doc.text("This utility is just a helper for the contesting parties to collect and be prepared. The final alimony is itself the sole discretion of judges.", 14, 25);
     doc.setFontSize(10);
-    doc.text(`Generated on: ${timestamp}`, 14, 27);
+    doc.text(`Generated on: ${timestamp}`, 14, 32);
     let finalRows = [];
 
     sections.forEach((section) => {
@@ -120,12 +122,13 @@ export default function AlimonyFormApp() {
 
     const doc = new Document({
       creator: "Alimony App",
-      title: "Alimony Questionnaire (Based on 2024 SC Guidelines)",
+      title: "Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)",
       description: "Generated questionnaire responses",
       sections: [
         {
           children: [
-            new Paragraph({ children: [new TextRun("Alimony Questionnaire")] }),
+            new Paragraph({ children: [new TextRun("Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)")] }),
+            new Paragraph({ children: [new TextRun({ text: "This utility is just a helper for the contesting parties to collect and be prepared. The final alimony is itself the sole discretion of judges.", font: "Arial", size: 16, italics: true })] }),
             new Paragraph({ children: [new TextRun(`Generated on: ${timestamp}`)] }),
             new Table({ rows })
           ]
@@ -140,7 +143,7 @@ export default function AlimonyFormApp() {
 
   const generateText = () => {
     const timestamp = new Date().toLocaleString();
-    let textOutput = `Alimony Questionnaire (Based on 2024 SC Guidelines)\nGenerated on: ${timestamp}\n\n`;
+    let textOutput = `Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)\nThis utility is just a helper for the contesting parties to collect and be prepared. The final alimony is itself the sole discretion of judges.\nGenerated on: ${timestamp}\n\n`;
     sections.forEach((section) => {
       textOutput += section.title + "\n";
       section.questions.forEach((q) => {
@@ -203,9 +206,20 @@ export default function AlimonyFormApp() {
     }
   };
 
+  // Legal disclaimer note
+  const legalNote = "This utility is just a helper for the contesting parties to collect and be prepared. The final alimony is itself the sole discretion of judges.";
+  // Feedback link (only for website)
+  const feedbackNote = (
+    <span>
+      If any improvement needs to be done, please <a href="https://github.com/dineshr93/alimony-questionnaire/issues/new" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'underline' }}>suggest improvements</a>.
+    </span>
+  );
+
   return (
     <div className="container" style={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Alimony Questionnaire (Based on 2024 SC Guidelines)</h1>
+      <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)</h1>
+      <div style={{ fontSize: '12px', color: '#555', marginBottom: '10px', fontStyle: 'italic' }}>{legalNote}</div>
+      <div style={{ fontSize: '12px', color: '#555', marginBottom: '20px', fontStyle: 'italic' }}>{feedbackNote}</div>
       {sections.map((section, i) => (
         <div key={i} style={{ border: '1px solid #ccc', padding: '15px', marginTop: '20px', borderRadius: '8px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '10px' }}>{section.title}</h3>
