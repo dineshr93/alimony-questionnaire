@@ -22,6 +22,7 @@ export default function AlimonyFormApp() {
 
   useEffect(() => {
     setSections(questions);
+    document.title = "Alimony Guide";
     const link = document.querySelector("link[rel*='icon']") || document.createElement("link");
     link.type = 'image/svg+xml';
     link.rel = 'icon';
