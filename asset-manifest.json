@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/alimony-questionnaire/static/css/main.f855e6bc.css",
-    "main.js": "/alimony-questionnaire/static/js/main.8b84e4ec.js",
+    "main.js": "/alimony-questionnaire/static/js/main.fd81bdcc.js",
     "static/js/239.f3a7c514.chunk.js": "/alimony-questionnaire/static/js/239.f3a7c514.chunk.js",
     "static/js/977.78f70330.chunk.js": "/alimony-questionnaire/static/js/977.78f70330.chunk.js",
     "static/js/732.101ba783.chunk.js": "/alimony-questionnaire/static/js/732.101ba783.chunk.js",
@@ -9,7 +9,7 @@
     "static/media/logo.png": "/alimony-questionnaire/static/media/logo.f90f47b3b9f08665e56b.png",
     "index.html": "/alimony-questionnaire/index.html",
     "main.f855e6bc.css.map": "/alimony-questionnaire/static/css/main.f855e6bc.css.map",
-    "main.8b84e4ec.js.map": "/alimony-questionnaire/static/js/main.8b84e4ec.js.map",
+    "main.fd81bdcc.js.map": "/alimony-questionnaire/static/js/main.fd81bdcc.js.map",
     "239.f3a7c514.chunk.js.map": "/alimony-questionnaire/static/js/239.f3a7c514.chunk.js.map",
     "977.78f70330.chunk.js.map": "/alimony-questionnaire/static/js/977.78f70330.chunk.js.map",
     "732.101ba783.chunk.js.map": "/alimony-questionnaire/static/js/732.101ba783.chunk.js.map",
@@ -17,6 +17,6 @@
   },
   "entrypoints": [
     "static/css/main.f855e6bc.css",
-    "static/js/main.8b84e4ec.js"
+    "static/js/main.fd81bdcc.js"
   ]
 }
