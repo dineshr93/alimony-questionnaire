@@ -154,7 +154,17 @@ export default function AlimonyFormApp() {
 
   const exportToJson = () => {
     const data = JSON.stringify(responses, null, 2);
-    const blob = new Blob([data], { type: "application/json" });
+    // Proper Unicode base64 encoding using Uint8Array
+    function uint8ToBase64(uint8Array) {
+      let binary = '';
+      for (let i = 0; i < uint8Array.length; i++) {
+        binary += String.fromCharCode(uint8Array[i]);
+      }
+      return btoa(binary);
+    }
+    const uint8Array = new TextEncoder().encode(data);
+    const base64Data = uint8ToBase64(uint8Array);
+    const blob = new Blob([base64Data], { type: "application/json" });
     saveAs(blob, "Alimony_Questionnaire.json");
   };
 
@@ -163,8 +173,26 @@ export default function AlimonyFormApp() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
+        let parsedData = null;
         try {
-          const parsedData = JSON.parse(e.target.result);
+          // Try base64 decode first
+          function base64ToUint8(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes;
+          }
+          try {
+            const uint8Array = base64ToUint8(e.target.result);
+            const decoded = new TextDecoder().decode(uint8Array);
+            parsedData = JSON.parse(decoded);
+          } catch (base64Error) {
+            // If base64 fails, try plain JSON
+            parsedData = JSON.parse(e.target.result);
+          }
           setResponses(parsedData);
         } catch (error) {
           console.error("Error parsing JSON file:", error);
