@@ -13,7 +13,7 @@ import {
 } from "docx";
 import { saveAs as saveWord } from "file-saver";
 import questions from "./questions.json";
-import logo from "./logo.svg";
+import logo from "./logo.png";
 import "./App.css";
 
 export default function AlimonyFormApp() {
