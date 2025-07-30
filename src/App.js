@@ -209,6 +209,8 @@ export default function AlimonyFormApp() {
 
   // Legal disclaimer note
   const legalNote = "This utility is just a helper for the contesting parties to collect and be prepared. The final alimony is itself the sole discretion of judges.";
+  // Data privacy note
+  const privacyNote = "No user data is being collected.";
   // Feedback link (only for website)
   const feedbackNote = (
     <span>
@@ -219,7 +221,8 @@ export default function AlimonyFormApp() {
   return (
     <div className="container" style={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)</h1>
-      <div style={{ fontSize: '12px', color: '#555', marginBottom: '10px', fontStyle: 'italic' }}>{legalNote}</div>
+      <div style={{ fontSize: '12px', color: '#555', marginBottom: '6px', fontStyle: 'italic' }}>{legalNote}</div>
+      <div style={{ fontSize: '12px', color: '#555', marginBottom: '6px', fontStyle: 'italic' }}>{privacyNote}</div>
       <div style={{ fontSize: '12px', color: '#555', marginBottom: '20px', fontStyle: 'italic' }}>{feedbackNote}</div>
       {sections.map((section, i) => (
         <div key={i} style={{ border: '1px solid #ccc', padding: '15px', marginTop: '20px', borderRadius: '8px' }}>
