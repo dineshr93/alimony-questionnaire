@@ -208,9 +208,9 @@ export default function AlimonyFormApp() {
   };
 
   // Legal disclaimer note
-  const legalNote = "This utility is just a helper for the contesting parties to collect and be prepared. The final alimony is itself the sole discretion of judges.";
+  const legalNote = "Disclaimer:This tool compiles publicly available information from the Supreme Court of India regarding key factors considered in determining alimony claims. Please note that the final decision on alimony rests solely with the presiding judge. The creator of this tool is not liable for any legal outcomes or disputes resulting from its use.";
   // Data privacy note
-  const privacyNote = "No user data is being collected.";
+  const privacyNote = "User data are not stored as it is a client-side application. All data is not stored or sent to any server.";
   // Feedback link (only for website)
   const feedbackNote = (
     <span>
@@ -219,79 +219,79 @@ export default function AlimonyFormApp() {
   );
 
   return (
-    <div className="container" style={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)</h1>
-      <div style={{ fontSize: '12px', color: '#555', marginBottom: '6px', fontStyle: 'italic' }}>{legalNote}</div>
-      <div style={{ fontSize: '12px', color: '#555', marginBottom: '6px', fontStyle: 'italic' }}>{privacyNote}</div>
-      <div style={{ fontSize: '12px', color: '#555', marginBottom: '20px', fontStyle: 'italic' }}>{feedbackNote}</div>
+    <div className="container dark-bg">
+      <h1 className="main-heading">Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)</h1>
+      <div className="note-text">{legalNote}</div>
+      <div className="note-text">{privacyNote}</div>
+      <div className="note-text" style={{ marginBottom: '20px' }}>{feedbackNote}</div>
       {sections.map((section, i) => (
-        <div key={i} style={{ border: '1px solid #ccc', padding: '15px', marginTop: '20px', borderRadius: '8px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '10px' }}>{section.title}</h3>
+        <div key={i} className="card dark-card">
+          <h3 className="section-title">{section.title}</h3>
           {section.questions.map((q, j) => (
-            <div key={j} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-              <label style={{ width: '30%' }}>{q}</label>
-              <div style={{ flex: 1 }}>
+            <div key={j} className="question-row">
+              <label className="question-label">{q}</label>
+              <div className="input-col">
                 <textarea
+                  className="input-area"
                   placeholder="Spouse 1"
                   value={responses.spouse1[q] || ""}
                   onChange={(e) => handleChange("spouse1", q, e.target.value)}
-                  style={{ width: '100%', minHeight: '38px', resize: 'vertical', overflowY: 'hidden' }}
-                  rows={1}
+                  rows={2}
                   onInput={(e) => {
                     e.target.style.height = 'auto';
-                    e.target.style.height = e.target.scrollHeight + 'px';
+                    e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
                   }}
                 />
               </div>
-              <div style={{ flex: 1 }}>
+              <div className="input-col">
                 <textarea
+                  className="input-area"
                   placeholder="Spouse 2"
                   value={responses.spouse2[q] || ""}
                   onChange={(e) => handleChange("spouse2", q, e.target.value)}
-                  style={{ width: '100%', minHeight: '38px', resize: 'vertical', overflowY: 'hidden' }}
-                  rows={1}
+                  rows={2}
                   onInput={(e) => {
                     e.target.style.height = 'auto';
-                    e.target.style.height = e.target.scrollHeight + 'px';
+                    e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
                   }}
                 />
               </div>
             </div>
           ))}
-          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-            <label style={{ width: '30%' }}>Additional Comments</label>
+          <div className="question-row" style={{ marginTop: '10px' }}>
+            <label className="question-label">Additional Comments</label>
             <textarea
-              style={{ flex: 1, minHeight: '38px', resize: 'vertical', overflowY: 'hidden' }}
+              className="input-area"
               placeholder="Spouse 1"
               value={responses.spouse1[section.title + "_comments"] || ""}
               onChange={(e) => handleChange("spouse1", section.title + "_comments", e.target.value)}
-              rows={1}
+              rows={2}
               onInput={(e) => {
                 e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
+                e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
               }}
             />
             <textarea
-              style={{ flex: 1, minHeight: '38px', resize: 'vertical', overflowY: 'hidden' }}
+              className="input-area"
               placeholder="Spouse 2"
               value={responses.spouse2[section.title + "_comments"] || ""}
               onChange={(e) => handleChange("spouse2", section.title + "_comments", e.target.value)}
-              rows={1}
+              rows={2}
               onInput={(e) => {
                 e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
+                e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
               }}
             />
           </div>
         </div>
       ))}
-      <div style={{ marginTop: '30px', display: 'flex', gap: '20px' }}>
-        <button onClick={generatePDF} style={{ padding: '10px 20px', fontWeight: 'bold' }}>Generate PDF</button>
-        <button onClick={generateWord} style={{ padding: '10px 20px', fontWeight: 'bold' }}>Generate Word</button>
-        <button onClick={generateText} style={{ padding: '10px 20px', fontWeight: 'bold' }}>Generate Text</button>
-        <button onClick={exportToJson} style={{ padding: '10px 20px', fontWeight: 'bold' }}>Export to JSON</button>
+      <div className="button-group-responsive" style={{ marginTop: '30px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
+        <button onClick={generatePDF} style={{ padding: '10px 20px', fontWeight: 'bold', flex: '1 1 180px', minWidth: '140px' }}>Generate PDF</button>
+        <button onClick={generateWord} style={{ padding: '10px 20px', fontWeight: 'bold', flex: '1 1 180px', minWidth: '140px' }}>Generate Word</button>
+        <button onClick={generateText} style={{ padding: '10px 20px', fontWeight: 'bold', flex: '1 1 180px', minWidth: '140px' }}>Generate Text</button>
+        <button onClick={exportToJson} style={{ padding: '10px 20px', fontWeight: 'bold', flex: '1 1 180px', minWidth: '140px' }}>Export to JSON</button>
         <input type="file" accept=".json" onChange={loadFromJson} style={{ display: 'none' }} id="loadJsonInput" />
-        <button onClick={() => document.getElementById('loadJsonInput').click()} style={{ padding: '10px 20px', fontWeight: 'bold' }}>Load from JSON</button>
+        <button onClick={() => document.getElementById('loadJsonInput').click()} style={{ padding: '10px 20px', fontWeight: 'bold', flex: '1 1 180px', minWidth: '140px' }}>Load from JSON</button>
       </div>
     </div>
   );
