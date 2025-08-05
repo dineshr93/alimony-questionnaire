@@ -11,7 +11,6 @@ import {
   TableCell,
   TextRun
 } from "docx";
-import { saveAs as saveWord } from "file-saver";
 import questions from "./questions.json";
 import logo from "./logo.png";
 import "./App.css";
@@ -52,19 +51,35 @@ export default function AlimonyFormApp() {
     let finalRows = [];
 
     sections.forEach((section) => {
-      finalRows.push([section.title, "", ""]);
-      section.questions.forEach((q) => {
+      if (section.title === "1. Marriage and Family Details") {
+        finalRows.push([section.title, "", ""]);
+        section.questions.forEach((q) => {
+          finalRows.push([
+            q,
+            responses[q] || "",
+            ""
+          ]);
+        });
         finalRows.push([
-          q,
-          responses.spouse1[q] || "",
-          responses.spouse2[q] || ""
+          "Additional Comments",
+          responses.spouse1[section.title + "_comments"] || "",
+          responses.spouse2[section.title + "_comments"] || ""
         ]);
-      });
-      finalRows.push([
-        "Additional Comments",
-        responses.spouse1[section.title + "_comments"] || "",
-        responses.spouse2[section.title + "_comments"] || ""
-      ]);
+      } else {
+        finalRows.push([section.title, "", ""]);
+        section.questions.forEach((q) => {
+          finalRows.push([
+            q,
+            responses.spouse1[q] || "",
+            responses.spouse2[q] || ""
+          ]);
+        });
+        finalRows.push([
+          "Additional Comments",
+          responses.spouse1[section.title + "_comments"] || "",
+          responses.spouse2[section.title + "_comments"] || ""
+        ]);
+      }
     });
 
     autoTable(doc, {
@@ -90,35 +105,67 @@ export default function AlimonyFormApp() {
     ];
 
     sections.forEach((section) => {
-      rows.push(
-        new TableRow({
-          children: [
-            new TableCell({ children: [new Paragraph(section.title)] }),
-            new TableCell({ children: [new Paragraph("")] }),
-            new TableCell({ children: [new Paragraph("")] })
-          ]
-        })
-      );
-      section.questions.forEach((q) => {
+      if (section.title === "1. Marriage and Family Details") {
         rows.push(
           new TableRow({
             children: [
-              new TableCell({ children: [new Paragraph(q)] }),
-              new TableCell({ children: [new Paragraph(responses.spouse1[q] || "")] }),
-              new TableCell({ children: [new Paragraph(responses.spouse2[q] || "")] })
+              new TableCell({ children: [new Paragraph(section.title)] }),
+              new TableCell({ children: [new Paragraph("")] }),
+              new TableCell({ children: [new Paragraph("")] })
             ]
           })
         );
-      });
-      rows.push(
-        new TableRow({
-          children: [
-            new TableCell({ children: [new Paragraph("Additional Comments")] }),
-            new TableCell({ children: [new Paragraph(responses.spouse1[section.title + "_comments"] || "")] }),
-            new TableCell({ children: [new Paragraph(responses.spouse2[section.title + "_comments"] || "")] })
-          ]
-        })
-      );
+        section.questions.forEach((q) => {
+          rows.push(
+            new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph(q)] }),
+                new TableCell({ children: [new Paragraph(responses[q] || "")] }),
+                new TableCell({ children: [new Paragraph("")] })
+              ]
+            })
+          );
+        });
+        rows.push(
+          new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph("Additional Comments")] }),
+              new TableCell({ children: [new Paragraph(responses.spouse1[section.title + "_comments"] || "")] }),
+              new TableCell({ children: [new Paragraph(responses.spouse2[section.title + "_comments"] || "")] })
+            ]
+          })
+        );
+      } else {
+        rows.push(
+          new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph(section.title)] }),
+              new TableCell({ children: [new Paragraph("")] }),
+              new TableCell({ children: [new Paragraph("")] })
+            ]
+          })
+        );
+        section.questions.forEach((q) => {
+          rows.push(
+            new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph(q)] }),
+                new TableCell({ children: [new Paragraph(responses.spouse1[q] || "")] }),
+                new TableCell({ children: [new Paragraph(responses.spouse2[q] || "")] })
+              ]
+            })
+          );
+        });
+        rows.push(
+          new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph("Additional Comments")] }),
+              new TableCell({ children: [new Paragraph(responses.spouse1[section.title + "_comments"] || "")] }),
+              new TableCell({ children: [new Paragraph(responses.spouse2[section.title + "_comments"] || "")] })
+            ]
+          })
+        );
+      }
     });
 
     const doc = new Document({
@@ -138,7 +185,7 @@ export default function AlimonyFormApp() {
     });
 
     const blob = await Packer.toBlob(doc);
-    saveWord(blob, "Alimony_Questionnaire.docx");
+    saveAs(blob, "Alimony_Questionnaire.docx");
   };
 
 
@@ -146,18 +193,44 @@ export default function AlimonyFormApp() {
     const timestamp = new Date().toLocaleString();
     let textOutput = `Alimony calculation Guide (Based on 2024 INSC 961 Guidelines)\nThis utility is just a helper for the contesting parties to collect and be prepared. The final alimony is itself the sole discretion of judges.\nGenerated on: ${timestamp}\n\n`;
     sections.forEach((section) => {
-      textOutput += section.title + "\n";
-      section.questions.forEach((q) => {
-        textOutput += `${q}\nSpouse 1: ${responses.spouse1[q] || ""}\nSpouse 2: ${responses.spouse2[q] || ""}\n`;
-      });
-      textOutput += `Additional Comments\nSpouse 1: ${responses.spouse1[section.title + "_comments"] || ""}\nSpouse 2: ${responses.spouse2[section.title + "_comments"] || ""}\n\n`;
+      if (section.title === "1. Marriage and Family Details") {
+        textOutput += section.title + "\n";
+        section.questions.forEach((q) => {
+          textOutput += `${q}\n${responses[q] || ""}\n`;
+        });
+        textOutput += `Additional Comments\n${responses.spouse1[section.title + "_comments"] ? "Spouse 1: " + responses.spouse1[section.title + "_comments"] + "\n" : ""}${responses.spouse2[section.title + "_comments"] ? "Spouse 2: " + responses.spouse2[section.title + "_comments"] + "\n" : ""}\n\n`;
+      } else {
+        textOutput += section.title + "\n";
+        section.questions.forEach((q) => {
+          textOutput += `${q}\n${responses.spouse1[q] ? "Spouse 1: " + responses.spouse1[q] + "\n" : ""}${responses.spouse2[q] ? "Spouse 2: " + responses.spouse2[q] + "\n" : ""}`;
+        });
+        textOutput += `Additional Comments\n${responses.spouse1[section.title + "_comments"] ? "Spouse 1: " + responses.spouse1[section.title + "_comments"] + "\n" : ""}${responses.spouse2[section.title + "_comments"] ? "Spouse 2: " + responses.spouse2[section.title + "_comments"] + "\n" : ""}\n\n`;
+      }
     });
     const blob = new Blob([textOutput], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "Alimony_Questionnaire.txt");
   };
 
   const exportToJson = () => {
-    const data = JSON.stringify(responses, null, 2);
+    // Prepare export object
+    const exportObj = { spouse1: {}, spouse2: {} };
+    sections.forEach((section) => {
+      if (section.title === "1. Marriage and Family Details") {
+        section.questions.forEach((q) => {
+          exportObj[q] = responses[q] || "";
+        });
+        exportObj.spouse1[section.title + "_comments"] = responses.spouse1[section.title + "_comments"] || "";
+        exportObj.spouse2[section.title + "_comments"] = responses.spouse2[section.title + "_comments"] || "";
+      } else {
+        section.questions.forEach((q) => {
+          exportObj.spouse1[q] = responses.spouse1[q] || "";
+          exportObj.spouse2[q] = responses.spouse2[q] || "";
+        });
+        exportObj.spouse1[section.title + "_comments"] = responses.spouse1[section.title + "_comments"] || "";
+        exportObj.spouse2[section.title + "_comments"] = responses.spouse2[section.title + "_comments"] || "";
+      }
+    });
+    const data = JSON.stringify(exportObj, null, 2);
     // Proper Unicode base64 encoding using Uint8Array
     function uint8ToBase64(uint8Array) {
       let binary = '';
@@ -197,7 +270,25 @@ export default function AlimonyFormApp() {
             // If base64 fails, try plain JSON
             parsedData = JSON.parse(e.target.result);
           }
-          setResponses(parsedData);
+          // Reconstruct responses object
+          const newResponses = { spouse1: {}, spouse2: {} };
+          sections.forEach((section) => {
+            if (section.title === "1. Marriage and Family Details") {
+              section.questions.forEach((q) => {
+                newResponses[q] = parsedData[q] || "";
+              });
+              newResponses.spouse1[section.title + "_comments"] = parsedData.spouse1[section.title + "_comments"] || "";
+              newResponses.spouse2[section.title + "_comments"] = parsedData.spouse2[section.title + "_comments"] || "";
+            } else {
+              section.questions.forEach((q) => {
+                newResponses.spouse1[q] = parsedData.spouse1[q] || "";
+                newResponses.spouse2[q] = parsedData.spouse2[q] || "";
+              });
+              newResponses.spouse1[section.title + "_comments"] = parsedData.spouse1[section.title + "_comments"] || "";
+              newResponses.spouse2[section.title + "_comments"] = parsedData.spouse2[section.title + "_comments"] || "";
+            }
+          });
+          setResponses(newResponses);
         } catch (error) {
           console.error("Error parsing JSON file:", error);
           alert("Invalid JSON file.");
@@ -227,62 +318,115 @@ export default function AlimonyFormApp() {
       {sections.map((section, i) => (
         <div key={i} className="card dark-card">
           <h3 className="section-title">{section.title}</h3>
-          {section.questions.map((q, j) => (
-            <div key={j} className="question-row">
-              <label className="question-label">{q}</label>
-              <div className="input-col">
-                <textarea
-                  className="input-area"
-                  placeholder="Spouse 1"
-                  value={responses.spouse1[q] || ""}
-                  onChange={(e) => handleChange("spouse1", q, e.target.value)}
-                  rows={2}
-                  onInput={(e) => {
-                    e.target.style.height = 'auto';
-                    e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
-                  }}
-                />
-              </div>
-              <div className="input-col">
-                <textarea
-                  className="input-area"
-                  placeholder="Spouse 2"
-                  value={responses.spouse2[q] || ""}
-                  onChange={(e) => handleChange("spouse2", q, e.target.value)}
-                  rows={2}
-                  onInput={(e) => {
-                    e.target.style.height = 'auto';
-                    e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-          <div className="question-row" style={{ marginTop: '10px' }}>
-            <label className="question-label">Additional Comments</label>
-            <textarea
-              className="input-area"
-              placeholder="Spouse 1"
-              value={responses.spouse1[section.title + "_comments"] || ""}
-              onChange={(e) => handleChange("spouse1", section.title + "_comments", e.target.value)}
-              rows={2}
-              onInput={(e) => {
-                e.target.style.height = 'auto';
-                e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
-              }}
-            />
-            <textarea
-              className="input-area"
-              placeholder="Spouse 2"
-              value={responses.spouse2[section.title + "_comments"] || ""}
-              onChange={(e) => handleChange("spouse2", section.title + "_comments", e.target.value)}
-              rows={2}
-              onInput={(e) => {
-                e.target.style.height = 'auto';
-                e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
-              }}
-            />
-          </div>
+          {section.title === "1. Marriage and Family Details"
+            ? (
+              <>
+                {section.questions.map((q, j) => (
+                  <div key={j} className="question-row">
+                    <label className="question-label">{q}</label>
+                    <div className="input-col" style={{ width: '100%' }}>
+                      <textarea
+                        className="input-area"
+                        placeholder="Enter details"
+                        value={responses[q] || ""}
+                        onChange={(e) => setResponses((prev) => ({ ...prev, [q]: e.target.value }))}
+                        rows={2}
+                        onInput={(e) => {
+                          e.target.style.height = 'auto';
+                          e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+                <div className="question-row" style={{ marginTop: '10px' }}>
+                  <label className="question-label">Additional Comments</label>
+                  <textarea
+                    className="input-area"
+                    placeholder="Spouse 1"
+                    value={responses.spouse1[section.title + "_comments"] || ""}
+                    onChange={(e) => handleChange("spouse1", section.title + "_comments", e.target.value)}
+                    rows={2}
+                    onInput={(e) => {
+                      e.target.style.height = 'auto';
+                      e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
+                    }}
+                  />
+                  <textarea
+                    className="input-area"
+                    placeholder="Spouse 2"
+                    value={responses.spouse2[section.title + "_comments"] || ""}
+                    onChange={(e) => handleChange("spouse2", section.title + "_comments", e.target.value)}
+                    rows={2}
+                    onInput={(e) => {
+                      e.target.style.height = 'auto';
+                      e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
+                    }}
+                  />
+                </div>
+              </>
+            )
+            : (
+              <>
+                {section.questions.map((q, j) => (
+                  <div key={j} className="question-row">
+                    <label className="question-label">{q}</label>
+                    <div className="input-col">
+                      <textarea
+                        className="input-area"
+                        placeholder="Spouse 1"
+                        value={responses.spouse1[q] || ""}
+                        onChange={(e) => handleChange("spouse1", q, e.target.value)}
+                        rows={2}
+                        onInput={(e) => {
+                          e.target.style.height = 'auto';
+                          e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
+                        }}
+                      />
+                    </div>
+                    <div className="input-col">
+                      <textarea
+                        className="input-area"
+                        placeholder="Spouse 2"
+                        value={responses.spouse2[q] || ""}
+                        onChange={(e) => handleChange("spouse2", q, e.target.value)}
+                        rows={2}
+                        onInput={(e) => {
+                          e.target.style.height = 'auto';
+                          e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+                <div className="question-row" style={{ marginTop: '10px' }}>
+                  <label className="question-label">Additional Comments</label>
+                  <textarea
+                    className="input-area"
+                    placeholder="Spouse 1"
+                    value={responses.spouse1[section.title + "_comments"] || ""}
+                    onChange={(e) => handleChange("spouse1", section.title + "_comments", e.target.value)}
+                    rows={2}
+                    onInput={(e) => {
+                      e.target.style.height = 'auto';
+                      e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
+                    }}
+                  />
+                  <textarea
+                    className="input-area"
+                    placeholder="Spouse 2"
+                    value={responses.spouse2[section.title + "_comments"] || ""}
+                    onChange={(e) => handleChange("spouse2", section.title + "_comments", e.target.value)}
+                    rows={2}
+                    onInput={(e) => {
+                      e.target.style.height = 'auto';
+                      e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
+                    }}
+                  />
+                </div>
+              </>
+            )
+          }
         </div>
       ))}
       <div className="button-group-responsive" style={{ marginTop: '30px', display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
